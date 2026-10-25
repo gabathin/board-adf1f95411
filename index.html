@@ -151,7 +151,7 @@ body{padding:max(18px,calc(env(safe-area-inset-top) + 8px)) max(16px,calc(env(sa
 
 /* Tesla weather scene */
 .hero{height:240px!important}
-.tw{position:absolute;inset:0;isolation:isolate}.tw .sky{position:absolute;inset:0;background:linear-gradient(180deg,#2f78d0,#5aa0e6 58%,#a8d0f4)}
+.tw{position:absolute;inset:0;isolation:isolate}#tw.tw{animation:none!important;opacity:1!important;background:#0a1020}.tw .sky{position:absolute;inset:0;background:linear-gradient(180deg,#2f78d0,#5aa0e6 58%,#a8d0f4)}
 .tw canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
 .hero .txt{left:18px!important;right:auto!important;top:16px!important;text-align:left!important;text-shadow:0 1px 10px rgba(0,0,0,.5)}
 </style></head><body>
@@ -295,7 +295,7 @@ function buildTree(){const g=tc.getContext('2d');g.clearRect(0,0,TW,TH);const oc
  // snow on top surfaces
  if(isSn()&&snowLvl>0){for(let x=0;x<TW;x++)for(let y=1;y<TH-3;y++){if(!occ[y*TW+x]||occ[(y-1)*TW+x])continue;const r=vn(x/3,y/3)*.6+hash(x,y)*.4;if(r<snowLvl*1.15-.05){g.fillStyle=hash(y,x)<.5?'#ffffff':'#e9eff6';g.fillRect(x,y,1,1);if(snowLvl>.55&&r<snowLvl-.4)g.fillRect(x,y-1,1,1);if(snowLvl>1.1&&r<snowLvl-.6){g.fillRect(x,y+1,1,1);g.fillRect(x,y-2,1,1)}}}}
  // tint for weather
- const tint=NIGHT?'rgba(6,10,28,.55)':{night:'rgba(6,10,28,.55)',storm:'rgba(8,12,24,.42)',rain:'rgba(10,18,30,.28)',hail:'rgba(10,18,30,.22)',sleet:'rgba(10,18,30,.26)',heavysnow:'rgba(200,210,222,.12)',fog:'rgba(150,160,172,.25)'}[scene];
+ const tint=NIGHT?(scene==='storm'||scene==='rain'?'rgba(10,16,40,.42)':'rgba(14,22,50,.36)'):{night:'rgba(14,22,50,.36)',storm:'rgba(8,12,24,.42)',rain:'rgba(10,18,30,.28)',hail:'rgba(10,18,30,.22)',sleet:'rgba(10,18,30,.26)',heavysnow:'rgba(200,210,222,.12)',fog:'rgba(150,160,172,.25)'}[scene];
  if(tint){g.globalCompositeOperation='source-atop';g.fillStyle=tint;g.fillRect(0,0,TW,TH);g.globalCompositeOperation='source-over'}}
 
 /* ground cache */
@@ -318,7 +318,7 @@ function buildGround(){const wet=scene==='rain'||scene==='storm'||scene==='sleet
  // contact shadow (cells)
  g.fillStyle='rgba(0,0,0,.30)';g.beginPath();SHADOW.map(toC).forEach(([x,y],i)=>{x=(x-GOX)/P;y=(y-GOY)/P;i?g.lineTo(x,y):g.moveTo(x,y)});g.closePath();g.fill();
  g.fillStyle='rgba(0,0,0,.42)';for(const[tx,ty,w,h]of TYRES){const[x,y]=toC([tx,ty]);g.beginPath();g.ellipse((x-GOX)/P,(y-GOY)/P,w/IW*CW/P,h/IH*CH/P+.6,0,0,7);g.fill()}
- const tint=NIGHT?'rgba(6,10,28,.55)':{night:'rgba(6,10,28,.55)',storm:'rgba(8,12,24,.4)',fog:'rgba(150,160,172,.2)'}[scene];
+ const tint=NIGHT?'rgba(14,22,50,.32)':{night:'rgba(14,22,50,.32)',storm:'rgba(8,12,24,.4)',fog:'rgba(150,160,172,.2)'}[scene];
  if(tint){g.globalCompositeOperation='source-atop';g.fillStyle=tint;g.fillRect(0,0,GW,GH);g.globalCompositeOperation='source-over'}
  // pixel crisp: kill partial alpha from shadow AA by leaving it (soft is intended)
 }
@@ -332,7 +332,7 @@ function size(){dpr=Math.min(devicePixelRatio||1,3);const r=card.getBoundingClie
    const back=(x-CX)/CW;const r=vn(x/9,y/9)*.5+back*.32+hash(x,y)*.18+(k==='shield'?.12:0);
    const edge=k==='roof'&&!inPoly(x+1,y-1,p);carCells.push({x,y,r,edge,k})}}
  const cs=new Set(carCells.map(c=>c.x+','+c.y));for(const c of carCells){c.edge=!cs.has(c.x+','+(c.y-P));c.h=vn(c.x/14,7)*.6+.4;c.ov=!cs.has((c.x-P)+','+c.y)?-1:!cs.has((c.x+P)+','+c.y)?1:0}}
-function mkDark(){const c=cnv(img.width,img.height),g=c.getContext('2d');g.drawImage(img,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(6,10,28,.55)';g.fillRect(0,0,c.width,c.height);dark=c}
+function mkDark(){const c=cnv(img.width,img.height),g=c.getContext('2d');g.drawImage(img,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(16,26,58,.30)';g.fillRect(0,0,c.width,c.height);dark=c}
 
 const cnt={heavysnow:210,sleet:130,rain:110,storm:150,snow:80,hail:45,wind:14};
 let NIGHT_=false,NIGHT=false,tod='auto';function setScene(s){card.className='tw '+s+(NIGHT?' n':'');if(s===scene&&(parts.length||!cnt[s])){if(NIGHT!==NIGHT_){NIGHT_=NIGHT;gKey='';tKey='';pudKey=''}return}NIGHT_=NIGHT;scene=s;card.className='tw '+s+(NIGHT?' n':'');fx=[];runs=[];parts=[];leaves=[];snowLvl=isSn()?(RM?CAP():Math.min(SEED,1)*CAP()):0;gKey='';tKey='';for(let i=0;i<(cnt[s]||0);i++)parts.push(np(true))}
@@ -369,6 +369,8 @@ function drawLeaves(f,now,ph){const s=SEA,base=s.kind==='dec'?s.fall*(s.dens>.02
   X.globalAlpha=L.a;X.fillStyle=L.wet?'#6b3e1c':L.c;const flip=L.vy<1&&Math.floor(now/180+L.ph)%2;X.fillRect(S(L.x),S(L.y),flip?P:P*2,flip?P*2:P)}X.globalAlpha=1}
 function drawCar(now){const d=(NIGHT||scene==='storm')?dark:img;
  X.drawImage(d,CX,CY,CW,CH);
+ if(NIGHT){X.fillStyle='rgba(185,205,255,.38)';for(const c of carCells)if(c.edge)X.fillRect(c.x,c.y,P,P);
+  X.save();X.globalCompositeOperation='lighter';const[hx,hy]=toC(HEAD),[bx,by]=toC(BAR[0]),cx=(hx+bx)/2-10,cy=Math.max(hy,by)+14,g=X.createRadialGradient(cx,cy,0,cx,cy,60);g.addColorStop(0,'rgba(210,225,255,.22)');g.addColorStop(1,'rgba(210,225,255,0)');X.fillStyle=g;X.save();X.translate(cx,cy);X.scale(1.6,.5);X.translate(-cx,-cy);X.fillRect(cx-60,cy-60,120,120);X.restore();X.restore()}
  if(scene==='sun'&&SKY.sunE>.2){const sx=((now/40)%(CW*2.2))-CW*.6;X.save();X.beginPath();for(const k of['roof','hood']){const p=POLY[k].map(toC);X.moveTo(...p[0]);p.forEach(q=>X.lineTo(...q));X.closePath()}X.clip();X.fillStyle='rgba(255,255,255,.12)';X.beginPath();X.moveTo(CX+sx,CY);X.lineTo(CX+sx+14,CY);X.lineTo(CX+sx-26,CY+CH);X.lineTo(CX+sx-40,CY+CH);X.fill();X.restore()}
  if(isSn()){for(const c of carCells)if(c.r<snowLvl*1.05){const fresh=c.r>snowLvl*1.05-.08;X.fillStyle=fresh?'#dfe7f1':(hash(c.x,c.y)<.3?'#eef3f9':'#ffffff');X.fillRect(c.x,c.y,P,P);if(c.edge){const mh=scene==='heavysnow'?6:4,h=Math.floor(mh*c.h*clamp((snowLvl-c.r-.15)/.6,0,1));for(let k=1;k<=h;k++){X.fillStyle=k===h?'#f2f6fb':'#ffffff';X.fillRect(c.x,c.y-k*P,P,P)}if(c.ov&&h>=2){X.fillStyle='#eef3f9';X.fillRect(c.x+c.ov*P,c.y-P,P,P);X.fillStyle='rgba(150,165,185,.55)';X.fillRect(c.x+c.ov*P,c.y,P,P)}}}
   if(snowLvl>.35){const roof=carCells.filter(c=>c.edge);for(let i=0;i<3;i++){const c=roof[(Math.floor(now/500)*7+i*31)%roof.length];if(c&&c.r<snowLvl-.4&&Math.sin(now/220+i)>.5)rect(c.x,c.y-P*4,P,P,'#fff')}}}
