@@ -5,7 +5,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Board">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<title>Morning Board</title>
+<title>Daily Board</title>
 <!--
  Morning Board — weather live from Open-Meteo in the browser; private items from data.json (rebuilt each morning by build_data.py).
  Deep links:
@@ -181,6 +181,8 @@ body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env
  .colB{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr auto;column-gap:16px;align-items:start}
  .colB>.row2{grid-column:1;grid-row:1/span 2;grid-template-columns:1fr}.colB>#focus{grid-column:2;grid-row:1}.colB>#items{grid-column:2;grid-row:2}.colB>.foot{grid-column:1/-1;grid-row:3}
 }
+
+body{padding-top:max(18px,calc(env(safe-area-inset-top) * 1.5 + 8px))!important}
 </style><style>.sentry{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.sentry i{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.75);animation:sntp 2.4s ease-in-out infinite}@keyframes sntp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}@media (prefers-reduced-motion:reduce){.sentry i{animation:none}}
 /* RESPD Duo */
 @media (min-width:900px) and (max-width:1010px) and (min-height:561px) and (max-height:720px) and (orientation:landscape){
@@ -210,7 +212,7 @@ body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env
 </defs></svg>
 
 
-<header class="head rise" style="--d:0"><div><div class="k" id="kicker">Morning Board</div><h1 id="greet">Good morning, Gabe.</h1><div class="time" id="when">&nbsp;</div></div>
+<header class="head rise" style="--d:0"><div><div class="k" id="kicker">Daily Board</div><h1 id="greet">Good morning, Gabe.</h1><div class="time" id="when">&nbsp;</div></div>
 <div class="status" id="status"><span class="pulse"></span><span id="stxt">Loading</span></div></header>
 
 <section class="glass weather rise" style="--d:1">
@@ -761,7 +763,7 @@ function renderTesla(T){{const q=new URLSearchParams(location.search),qc=q.get('
  if(T.charge_limit)$('tbar').innerHTML='<div class="bar" style="position:relative"><i data-w="'+b+'%"></i><span style="position:absolute;top:-2px;bottom:-2px;left:'+(+T.charge_limit)+'%;width:2px;background:#e0f2fe;opacity:.7"></span></div>';
  $('tas').textContent='as of '+(T.asOf||'')+(T.state==='asleep'?' · asleep':'');}
 function renderData(J){renderTesla(J.tesla);
- $('kicker').textContent='Morning Board · '+(J.dayType||'Today');$('when').textContent=J.dateLabel||'';
+ $('kicker').textContent='Daily Board · '+(J.dayType||'Today');$('when').textContent=J.dateLabel||'';
  $('stxt').textContent=J.status||'Up to date';
  const L=J.leave||{},a=$('leave');
  if(L.dest){a.dataset.dest=L.dest;mapsLinks(a,L.dest);a.setAttribute('aria-label','Directions to '+L.destName);
