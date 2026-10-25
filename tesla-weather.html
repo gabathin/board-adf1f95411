@@ -42,6 +42,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 <div class="chips" id="wchips"><button data-s="live" class="on">Live</button><button data-s="sun">Clear</button><button data-s="drizzle">Drizzle</button><button data-s="rain">Rain</button><button data-s="snow">Snow</button><button data-s="heavysnow">Heavy snow</button><button data-s="sleet">Sleet</button><button data-s="fog">Fog</button><button data-s="hail">Hail</button><button data-s="wind">Wind</button><button data-s="storm">Storm</button></div>
 <div class="lbl">Season</div>
 <div class="chips" id="schips"><button data-d="today" class="on">Today</button><button data-d="04-12">Spring</button><button data-d="07-10">Summer</button><button data-d="10-02">Early fall</button><button data-d="10-24">Peak fall</button><button data-d="11-12">Late fall</button><button data-d="11-26">Bare</button><button data-d="12-15">Christmas</button><button data-d="01-20">Winter pine</button></div>
+<div class="chips" id="xchips"><button id="santa">Santa</button><button id="pres">Presents: Auto</button></div>
+<div class="chips" id="cchips"><button data-c="" class="on">Car: Live</button><button data-c="cold">Cabin cold</button><button data-c="warming">Warming (defrost)</button><button data-c="warm">Warm</button><button data-c="asleep">Asleep</button></div>
 <div class="chips"><button id="tl">Fast snow</button><button id="rs">Reset snow</button><button id="ice">Icicles: Auto</button></div>
 <p class="note" id="note">Concept preview.</p>
 <script>
@@ -185,7 +187,7 @@ function size(){dpr=Math.min(devicePixelRatio||1,3);const r=card.getBoundingClie
   for(let y=S(Math.min(...ys));y<Math.max(...ys);y+=P)for(let x=S(Math.min(...xs));x<Math.max(...xs);x+=P)if(inPoly(x+1,y+1,p)){
    const back=(x-CX)/CW;const r=vn(x/9,y/9)*.5+back*.32+hash(x,y)*.18+(k==='shield'?.12:0);
    const edge=k==='roof'&&!inPoly(x+1,y-1,p);carCells.push({x,y,r,edge,k})}}
- const cs=new Set(carCells.map(c=>c.x+','+c.y));for(const c of carCells){c.edge=!cs.has(c.x+','+(c.y-P));c.h=vn(c.x/14,7)*.6+.4;c.ov=!cs.has((c.x-P)+','+c.y)?-1:!cs.has((c.x+P)+','+c.y)?1:0}}
+ const cs=new Set(carCells.map(c=>c.x+','+c.y));for(const c of carCells){c.edge=!cs.has(c.x+','+(c.y-P));c.h=vn(c.x/14,7)*.6+.4;c.ov=!cs.has((c.x-P)+','+c.y)?-1:!cs.has((c.x+P)+','+c.y)?1:0}buildGlass()}
 function mkDark(){const c=cnv(img.width,img.height),g=c.getContext('2d');g.drawImage(img,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(16,26,58,.30)';g.fillRect(0,0,c.width,c.height);dark=c}
 
 const cnt={drizzle:30,heavysnow:210,sleet:130,rain:110,storm:150,snow:80,hail:45,wind:14};
@@ -227,10 +229,11 @@ function drawLeaves(f,now,ph){const s=SEA,base=s.kind==='dec'?s.fall*(s.dens>.02
   X.globalAlpha=L.a;X.fillStyle=L.wet?'#6b3e1c':L.c;const flip=L.vy<1&&Math.floor(now/180+L.ph)%2;X.fillRect(S(L.x),S(L.y),flip?P:P*2,flip?P*2:P)}X.globalAlpha=1}
 function drawCar(now){const d=(NIGHT||scene==='storm')?dark:img;
  X.drawImage(d,CX,CY,CW,CH);
+ drawFrost(now);
  if(NIGHT){X.fillStyle='rgba(185,205,255,.38)';for(const c of carCells)if(c.edge)X.fillRect(c.x,c.y,P,P);
   X.save();X.globalCompositeOperation='lighter';const[hx,hy]=toC(HEAD),[bx,by]=toC(BAR[0]),cx=(hx+bx)/2-10,cy=Math.max(hy,by)+14,g=X.createRadialGradient(cx,cy,0,cx,cy,60);g.addColorStop(0,'rgba(210,225,255,.22)');g.addColorStop(1,'rgba(210,225,255,0)');X.fillStyle=g;X.save();X.translate(cx,cy);X.scale(1.6,.5);X.translate(-cx,-cy);X.fillRect(cx-60,cy-60,120,120);X.restore();X.restore()}
  if(scene==='sun'&&SKY.sunE>.2){const sx=((now/40)%(CW*2.2))-CW*.6;X.save();X.beginPath();for(const k of['roof','hood']){const p=POLY[k].map(toC);X.moveTo(...p[0]);p.forEach(q=>X.lineTo(...q));X.closePath()}X.clip();X.fillStyle='rgba(255,255,255,.12)';X.beginPath();X.moveTo(CX+sx,CY);X.lineTo(CX+sx+14,CY);X.lineTo(CX+sx-26,CY+CH);X.lineTo(CX+sx-40,CY+CH);X.fill();X.restore()}
- if(isSn()){for(const c of carCells)if(c.r<snowLvl*1.05){const fresh=c.r>snowLvl*1.05-.08;X.fillStyle=fresh?'#dfe7f1':(hash(c.x,c.y)<.3?'#eef3f9':'#ffffff');X.fillRect(c.x,c.y,P,P);if(c.edge){const mh=scene==='heavysnow'?6:4,h=Math.floor(mh*c.h*clamp((snowLvl-c.r-.15)/.6,0,1));for(let k=1;k<=h;k++){X.fillStyle=k===h?'#f2f6fb':'#ffffff';X.fillRect(c.x,c.y-k*P,P,P)}if(c.ov&&h>=2){X.fillStyle='#eef3f9';X.fillRect(c.x+c.ov*P,c.y-P,P,P);X.fillStyle='rgba(150,165,185,.55)';X.fillRect(c.x+c.ov*P,c.y,P,P)}}}
+ if(isSn()&&SNC()>.02){const snowLvl=SNC();for(const c of carCells)if(c.r<snowLvl*1.05){const fresh=c.r>snowLvl*1.05-.08;X.fillStyle=fresh?'#dfe7f1':(hash(c.x,c.y)<.3?'#eef3f9':'#ffffff');X.fillRect(c.x,c.y,P,P);if(c.edge){const mh=scene==='heavysnow'?6:4,h=Math.floor(mh*c.h*clamp((snowLvl-c.r-.15)/.6,0,1));for(let k=1;k<=h;k++){X.fillStyle=k===h?'#f2f6fb':'#ffffff';X.fillRect(c.x,c.y-k*P,P,P)}if(c.ov&&h>=2){X.fillStyle='#eef3f9';X.fillRect(c.x+c.ov*P,c.y-P,P,P);X.fillStyle='rgba(150,165,185,.55)';X.fillRect(c.x+c.ov*P,c.y,P,P)}}}
   if(snowLvl>.35){const roof=carCells.filter(c=>c.edge);for(let i=0;i<3;i++){const c=roof[(Math.floor(now/500)*7+i*31)%roof.length];if(c&&c.r<snowLvl-.4&&Math.sin(now/220+i)>.5)rect(c.x,c.y-P*4,P,P,'#fff')}}}
  if(scene==='sleet'){for(const c of carCells){if(c.k!=='roof'&&c.k!=='hood')continue;const h=hash(c.x*3,c.y*5);if(h<.09||(c.edge&&h<.5)){const tw=RM?.5:.5+.5*Math.sin(now/600+h*60);X.fillStyle=`rgba(200,228,255,${(c.edge?.35:.12)+.25*tw*(h<.04?1:.4)})`;X.fillRect(c.x,c.y,P,P)}}}
  const glow=NIGHT||scene==='sleet'||scene==='storm'||scene==='fog'||scene==='rain';if(glow){const a=NIGHT?1:.7;X.save();X.globalCompositeOperation='lighter';
@@ -254,17 +257,61 @@ function puddle(now,f){const big=scene==='storm';const key=scene+'|'+CX+'|'+CY;i
   for(let t=0;t<16;t++){const an=t/16*Math.PI*2;X.fillRect(S(r.x+Math.cos(an)*rr),S(r.y+Math.sin(an)*ry2),P,P)}
   if(r.a<.35){const h=S(r.a*20);X.fillStyle=`rgba(225,238,252,${1-r.a*2.5})`;X.fillRect(r.x,r.y-h-P,P,P);X.fillRect(r.x-S(4+h/2),r.y-S(h*.6),P,P);X.fillRect(r.x+S(4+h/2),r.y-S(h*.6),P,P)}}
 }
+
+/* ---------- Christmas (Santa, presents) + window frost linked to Tesla cabin ---------- */
+const GLASS={sideF:[[448,281],[507,195],[580,127],[593,222],[544,246]],sideR:[[602,217],[593,118],[675,91],[716,86],[698,177]]};
+let glassCells=[],CABSIM=null,CABST='cold',meltK=0,meltInit=false,drips=[],santaT0=null,santaDone=false,PRES=qs.get('presents');const LOAD=performance.now();
+function buildGlass(){glassCells=[];for(const k of['shield','roof','sideF','sideR']){const p=(POLY[k]||GLASS[k]).map(toC),xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),y0=Math.min(...ys),y1=Math.max(...ys);
+ for(let y=S(y0);y<y1;y+=P)for(let x=S(Math.min(...xs));x<Math.max(...xs);x+=P)if(inPoly(x+1,y+1,p)){const e=!inPoly(x+1-P*2,y+1,p)||!inPoly(x+1+P*2,y+1,p)||!inPoly(x+1,y+1-P*2,p)||!inPoly(x+1,y+1+P*2,p);glassCells.push({x,y,k,v:(y1-y)/(y1-y0||1),e,h:hash(x*7+3,y*3+1)})}}}
+// Same object as the board's Tesla card (data.json "tesla"): inside_temp_f, climate_on, state, as_of_ms
+function cabState(){const T=window.TESLA_T||null;let inF=T?T.inside_temp_f:null,cl=T?!!T.climate_on:false,st=T?T.state:null;const ms=T?T.as_of_ms:null;let fresh=ms?Date.now()-ms<3*36e5:false;
+ const qc=qs.get('cabin'),qk=qs.get('climate');if(qc!=null&&qc!==''&&!isNaN(+qc)){inF=+qc;fresh=true}if(qk!=null){cl=qk==='1'||qk==='on';fresh=true}
+ if(CABSIM){fresh=true;if(CABSIM==='cold'){inF=30;cl=false;st='online'}else if(CABSIM==='warming'){inF=44;cl=true;st='online'}else if(CABSIM==='warm'){inF=62;cl=false;st='online'}else{inF=null;cl=false;st='asleep'}}
+ if(inF!=null&&inF>=50)return'warm';if(cl)return'warming';if(!fresh||inF==null||st==='asleep'||st==='offline'||inF<=40)return'cold';return'warming'}
+function frz(){return CABSIM?true:(TEMPF!=null&&TEMPF<=32)}
+function updCab(dt){const st=cabState();CABST=st;if(!meltInit){meltInit=true;meltK=st==='warm'?1:0}const tgt=st==='cold'?0:1;
+ if(meltK<tgt)meltK=Math.min(1,meltK+dt/(RM?1:9000));else if(meltK>tgt)meltK=Math.max(0,meltK-dt/(RM?1:20000))}
+function SNC(){return snowLvl*(1-meltK)}
+function drawFrost(now){if(!frz()||meltK>=1||!glassCells.length)return;const na=NIGHT?.85:1;
+ for(const c of glassCells){let clr;if(c.k==='shield'){const line=meltK*1.25-.1+(c.h-.5)*.12;if(c.v<line)continue;clr=c.v-line<.07}else{if(c.h<meltK*1.1)continue;clr=c.h-meltK*1.1<.08}
+  const fern=((c.x/P+(c.y/P)*2)|0)%7===0||c.h>.86;let a=(c.e?.5:.2)+(fern?.16:0);if(clr)a*=.55;
+  X.fillStyle=fern?`rgba(246,251,255,${a*na})`:c.h<.33?`rgba(226,240,252,${a*na})`:c.h<.66?`rgba(203,225,245,${a*na})`:`rgba(238,246,255,${a*na})`;X.fillRect(c.x,c.y,P,P);
+  if(c.e&&c.h>.7&&!clr){X.fillStyle=`rgba(255,255,255,${.5*na})`;X.fillRect(c.x,c.y,P,P)}}}
+function drawDrips(dt){const melting=meltK>0&&meltK<1&&(frz()||isSn());if(melting&&!RM&&Math.random()<.18*dt/16.7&&drips.length<14){const pool=glassCells.filter(c=>c.k==='shield'&&c.v<.2||c.k==='roof'&&c.v<.12);const c=pool[(Math.random()*pool.length)|0];if(c)drips.push({x:c.x,y:c.y,vy:0,l:0})}
+ for(let i=drips.length-1;i>=0;i--){const d=drips[i];d.vy+=.03*dt/16.7;d.y+=d.vy*dt/16.7;d.l+=d.vy*dt/16.7;if(d.l>22){drips.splice(i,1);continue}X.fillStyle='rgba(190,222,255,.85)';X.fillRect(S(d.x),S(d.y),P,P);X.fillStyle='rgba(190,222,255,.35)';X.fillRect(S(d.x),S(d.y-P),P,P)}}
+function presOn(){if(PRES==='on'||PRES==='1')return true;if(PRES==='off'||PRES==='0')return false;return simDate.getMonth()===11&&simDate.getDate()===25}
+function gift(x,yb,w,h,c,rb){const y=yb-h*P;X.fillStyle=c;X.fillRect(S(x),S(y),w*P,h*P);X.fillStyle='rgba(0,0,0,.22)';X.fillRect(S(x+(w-1)*P),S(y),P,h*P);X.fillStyle='rgba(255,255,255,.18)';X.fillRect(S(x),S(y),w*P,P);
+ const m=Math.floor(w/2);X.fillStyle=rb;X.fillRect(S(x+m*P),S(y),P,h*P);X.fillRect(S(x),S(y+Math.floor(h/2)*P),w*P,P);X.fillRect(S(x+(m-1)*P),S(y-P),P,P);X.fillRect(S(x+(m+1)*P),S(y-P),P,P);
+ if(isSn()&&snowLvl>.12){X.fillStyle='#f4f8fc';X.fillRect(S(x),S(y-P),w*P,P);X.fillStyle='#ffffff';X.fillRect(S(x+P),S(y-P*2),Math.max(1,w-2)*P,P)}}
+const GIFTS=[[-17,6,5,'#c0392b','#f4d35e'],[-10,5,4,'#2e86de','#f2f2f2'],[5,6,6,'#2f9e55','#e74c3c'],[12,4,3,'#f1c40f','#c0392b'],[-3,5,3,'#8e44ad','#f4d35e']];
+function drawPresents(){if(!presOn())return;const bx=TOX()+TBX*P+P,by=TOY()+TBY*P+P*3;for(const[dx,w,h,c,r]of GIFTS)gift(bx+dx*P,by+(dx===-3?P*2:0),w,h,c,r);
+ const gx=CX+CW*.64,gy=CY+CH*1.0;gift(gx,gy,6,5,'#e74c3c','#2ecc71');gift(gx+P*8,gy-P*2,4,4,'#3b82f6','#f4d35e');gift(gx+P*14,gy-P*4,5,3,'#f5f5f5','#d62828')}
+const DEER=['.a.a........','..aa........','.bbd........','nbeb........','..bbg......t','..bhhhhhhhbt','...bbbbbbbb.','...lllllll..'],
+ LEGS=[['..d......d..','.d........d.'],['...d....d...','...d....d...'],['....d..d....','...d..d.....']],
+ SLEIGH=['.........w..ssss..','........rr.ssssss.','.......rrr.ssssss.','.......fff.ssssss.','g.....wwwwsssssss.','g.....rrrrrssssss.','gRRRRRRRRRRRRRRRRg','.gRRRRRRRRRRRRRRRg','..RRRRRRRRRRRRRRR.','..gggggggggggggg..','.k..k........k....','kkkkkkkkkkkkkkkk.k'],
+ SPAL={a:'#d2ad72',b:'#b56d34',d:'#6e3d1c',l:'#e3b47e',n:'#2a1a10',h:'#c62f2f',g:'#f3c64a',t:'#f2e2c4',w:'#ffffff',r:'#d62828',f:'#f2c9a0',R:'#b5161c',s:'#8b5a2b',k:'#e2b347'};
+function spr(rows,x,y){for(let j=0;j<rows.length;j++){const r=rows[j];for(let i=0;i<r.length;i++){const ch=r[i];if(ch!=='.'){X.fillStyle=SPAL[ch];X.fillRect(S(x+i*P),S(y+j*P),P,P)}}}}
+function SY(x){return Math.round(Math.max(2,x>W*.3?46:46-(W*.3-x)*.42))}
+function eveNight(){const m=curMin();return simDate.getMonth()===11&&simDate.getDate()===24&&m>=SUNT.set&&m<=1439}
+function drawSanta(now){const SF=qs.get('santaf');let f;
+ if(santaT0==null&&!santaDone&&SF==null&&!RM&&eveNight()&&now-LOAD>2000)santaT0=now;
+ if(santaT0!=null){f=(now-santaT0)/7500;if(f>1){santaT0=null;santaDone=true;return}}else if(SF!=null&&eveNight())f=clamp(+SF,0,1);else return;
+ const x0=W+12-f*(W+64*P+24),y0=SY(x0),fr=Math.floor(now/120)%3;
+ X.save();X.globalCompositeOperation='lighter';for(let k=1;k<=12;k++){const ff=f-k*.011;if(ff<0)break;const tx=W+12-ff*(W+64*P+24)+64*P,ty=SY(tx-64*P)+12+Math.sin(k*1.7+now/200)*3,tw=hash(k*13,Math.floor(now/110))>.35;if(!tw)continue;X.fillStyle=`rgba(255,240,190,${(1-k/13)*.75})`;X.fillRect(S(tx),S(ty),P,P);if(k<4){X.fillStyle=`rgba(255,255,255,${(1-k/13)*.5})`;X.fillRect(S(tx-P),S(ty),P,P);X.fillRect(S(tx+P),S(ty),P,P)}}X.restore();
+ for(let i=0;i<3;i++){const bob=Math.round(Math.sin(now/170+i*1.1)*1.2)*P,x=x0+i*15*P,y=y0+bob;spr(DEER,x,y);spr(LEGS[(fr+i)%3],x,y+8*P);
+  X.fillStyle=SPAL.h;X.fillRect(S(x+11*P),S(y+5*P),(i<2?4:5)*P,P)}
+ const sb=Math.round(Math.sin(now/200+3.3)*1.2)*P;spr(SLEIGH,x0+46*P,y0-2*P+sb)}
 function frame(now){const dt=Math.min(50,now-t0);t0=now;const f=dt/16.7;
 
  if(scene==='sleet'){const nl=Math.min(.42,sleetLvl+dt*.42/(timelapse?10000:75000));if(Math.round(nl*60)!==Math.round(sleetLvl*60))tKey='';sleetLvl=nl}if(isSn()){const hv=scene==='heavysnow';snowLvl=Math.min(CAP(),snowLvl+dt*CAP()/(hv?(timelapse?8000:55000):(timelapse?10000:75000)))}
- X.clearRect(0,0,W,H);
+ X.clearRect(0,0,W,H);updCab(dt);
  if(playing){simMin=(simMin+dt*1440/35000)%1440;updTime()}
  drawSky(now);
  buildGround();X.save();X.imageSmoothingEnabled=false;X.globalAlpha=scene==='fog'?.7:1;X.drawImage(gc,GOX,GOY,GW*P,GH*P);X.restore();
  {const bx=TOX()+TBX*P+P,by=TOY()+TBY*P;X.fillStyle='rgba(0,0,0,.22)';for(const[w,dy]of[[12,-3],[20,-1],[24,1],[16,3]])X.fillRect(S(bx-w),S(by+dy),w*2,P);X.fillStyle='rgba(0,0,0,.14)';X.fillRect(S(bx-10),S(by-1),20,P*2)}
  const ph=drawTree(now);
  if(scene==='rain'||scene==='storm')puddle(now,dt/16.7);
- drawCar(now);
+ drawCar(now);drawDrips(dt);drawPresents();
  drawLeaves(f,now,ph);
  if(scene==='fog'||scene==='storm'||scene==='rain'){for(let i=0;i<4;i++){const y=60+i*36,o=((now/60*(i+1)*.3)%(W+200))-200;X.fillStyle='rgba(205,214,226,'+(scene==='fog'?.16:.03)+')';for(let k=0;k<4;k++)X.fillRect(S(o+k*95),S(y+Math.sin(k+i)*8),160,12)}}
  const gy=CY+CH-4;
@@ -296,6 +343,7 @@ function frame(now){const dt=Math.min(50,now-t0);t0=now;const f=dt/16.7;
   for(const p of parts){p.x+=p.v*f;p.y+=Math.sin(now/300+p.ph)*.8*f;if(p.x>W+10)Object.assign(p,np(false));X.fillStyle=p.c;if(p.leaf&&SEA.kind==='dec'&&SEA.phase!=='spring'&&SEA.phase!=='summer'){const r=Math.floor(now/150+p.ph)%2;X.fillRect(S(p.x),S(p.y),r?4:2,r?2:4)}else{X.fillStyle='rgba(220,210,190,.5)';X.fillRect(S(p.x),S(p.y),P,P)}}}
  tintScene();
  if(NIGHT&&parts.length&&scene!=='wind'){X.save();X.globalCompositeOperation='lighter';for(const q of[BAR[0],HEAD]){const[x,y]=toC(q),g=X.createRadialGradient(x,y,0,x,y,46);g.addColorStop(0,'rgba(200,220,255,.16)');g.addColorStop(1,'rgba(200,220,255,0)');X.fillStyle=g;X.fillRect(x-46,y-46,92,92)}X.restore()}
+ drawSanta(now);
  if(!RM)requestAnimationFrame(frame)}
 
 /* ---------- weather + UI ---------- */
@@ -319,6 +367,10 @@ if(timelapse)document.getElementById('tl').classList.add('on');
 window.setMode=m=>document.querySelector('#wchips [data-s="'+m+'"]').click();
 window.setSeason=n=>[...document.querySelectorAll('#schips button')].find(b=>b.textContent===n).click();
 window.setSnow=v=>{snowLvl=v;tKey='';gKey=''};{const ib=document.getElementById('ice'),L={auto:'Auto',on:'On',off:'Off'},N={auto:'on',on:'off',off:'auto'};ib.onclick=()=>{ICE=N[ICE];ib.textContent='Icicles: '+L[ICE];ib.classList.toggle('on',ICE==='on')}}window.setIce=v=>{ICE=v};window.setTemp=v=>{TEMPF=v};
+document.getElementById('santa').onclick=()=>{santaDone=true;santaT0=performance.now();if(RM)frame(performance.now())};
+{const pb=document.getElementById('pres'),L={'':'Auto',on:'On',off:'Off'},N={'':'on',on:'off',off:''};pb.onclick=()=>{PRES=N[PRES||''];pb.textContent='Presents: '+L[PRES];pb.classList.toggle('on',PRES==='on');if(RM)frame(performance.now())}}
+document.querySelectorAll('#cchips button').forEach(b=>b.onclick=()=>{CABSIM=b.dataset.c||null;meltInit=!!CABSIM;meltK=CABSIM==='warm'?1:0;drips=[];document.querySelectorAll('#cchips button').forEach(x=>x.classList.toggle('on',x===b));if(RM)frame(performance.now())});
+window.setCar=c=>document.querySelector('#cchips [data-c="'+(c||'')+'"]').click();window.playSanta=()=>document.getElementById('santa').click();
 let lastCW=card.getBoundingClientRect().width,rzT=0;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{const w=card.getBoundingClientRect().width;if(Math.abs(w-lastCW)<1)return;lastCW=w;size();if(RM)frame(performance.now())},150)});
 /* ---------- time of day: sun, moon, sky ---------- */
 let simMin=720,SUNT={rise:420,set:1080},PARTLY=false,playing=false,SKY={d:300,morn:false,sunF:.5,sunE:1,moonF:-1,warm:0,cool:0,starF:0,top:[40,80,140],mid:[60,100,160]},skyStr='';
