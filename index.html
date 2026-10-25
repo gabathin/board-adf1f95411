@@ -470,7 +470,7 @@ const DEER=['.a.a........','..aa........','.bbd........','nbeb........','..bbg..
  SLEIGH=['.........w..ssss..','........rr.ssssss.','.......rrr.ssssss.','.......fff.ssssss.','g.....wwwwsssssss.','g.....rrrrrssssss.','gRRRRRRRRRRRRRRRRg','.gRRRRRRRRRRRRRRRg','..RRRRRRRRRRRRRRR.','..gggggggggggggg..','.k..k........k....','kkkkkkkkkkkkkkkk.k'],
  SPAL={a:'#d2ad72',b:'#b56d34',d:'#6e3d1c',l:'#e3b47e',n:'#2a1a10',h:'#c62f2f',g:'#f3c64a',t:'#f2e2c4',w:'#ffffff',r:'#d62828',f:'#f2c9a0',R:'#b5161c',s:'#8b5a2b',k:'#e2b347'};
 function spr(rows,x,y,m){for(let j=0;j<rows.length;j++){const r=m?[...rows[j]].reverse().join(''):rows[j];for(let i=0;i<r.length;i++){const ch=r[i];if(ch!=='.'){X.fillStyle=SPAL[ch];X.fillRect(S(x+i*P),S(y+j*P),P,P)}}}}
-function SY(x){return Math.round(Math.max(H*.21,x>W*.3?H*.27:H*.27-(W*.3-x)*.2))}
+function SY(x){return Math.round(Math.max(H*.21,x>W*.3?H*.27:H*.27-(W*.3-x)*.2)+(W<600?15:0))}
 function eveNight(){const m=curMin();return simDate.getMonth()===11&&simDate.getDate()===24&&m>=SUNT.set&&m<=1439}
 function drawSanta(now){const SF=qs.get('santaf');let f;
  if(santaT0==null&&!santaDone&&SF==null&&!RM&&eveNight()&&now-LOAD>2000)santaT0=now;
@@ -489,6 +489,7 @@ function frame(now){const dt=Math.min(50,now-t0);t0=now;updAria();const f=dt/16.
  drawSky(now);
  buildGround();X.save();X.imageSmoothingEnabled=false;X.globalAlpha=scene==='fog'?.7:1;X.drawImage(gc,GOX,GOY,GW*P,GH*P);X.restore();
  {const bx=TOX()+TBX*P+P,by=TOY()+TBY*P;X.fillStyle='rgba(0,0,0,.22)';for(const[w,dy]of[[12,-3],[20,-1],[24,1],[16,3]])X.fillRect(S(bx-w),S(by+dy),w*2,P);X.fillStyle='rgba(0,0,0,.14)';X.fillRect(S(bx-10),S(by-1),20,P*2)}
+ if(W<600)drawSanta(now);
  const ph=drawTree(now);drawPresents('tree');
  if(scene==='rain'||scene==='storm')puddle(now,dt/16.7);
  drawCar(now);drawDrips(dt);drawPresents('car');
@@ -523,7 +524,7 @@ function frame(now){const dt=Math.min(50,now-t0);t0=now;updAria();const f=dt/16.
   for(const p of parts){p.x+=p.v*f;p.y+=Math.sin(now/300+p.ph)*.8*f;if(p.x>W+10)Object.assign(p,np(false));X.fillStyle=p.c;if(p.leaf&&SEA.kind==='dec'&&SEA.phase!=='spring'&&SEA.phase!=='summer'){const r=Math.floor(now/150+p.ph)%2;X.fillRect(S(p.x),S(p.y),r?4:2,r?2:4)}else{X.fillStyle='rgba(220,210,190,.5)';X.fillRect(S(p.x),S(p.y),P,P)}}}
  tintScene();
  if(NIGHT&&parts.length&&scene!=='wind'){X.save();X.globalCompositeOperation='lighter';for(const q of[BAR[0],HEAD]){const[x,y]=toC(q),g=X.createRadialGradient(x,y,0,x,y,46);g.addColorStop(0,'rgba(200,220,255,.16)');g.addColorStop(1,'rgba(200,220,255,0)');X.fillStyle=g;X.fillRect(x-46,y-46,92,92)}X.restore()}
- drawSanta(now);
+ if(W>=600)drawSanta(now);
  if(!RM)requestAnimationFrame(frame)}
 
 /* ---------- weather + UI ---------- */
