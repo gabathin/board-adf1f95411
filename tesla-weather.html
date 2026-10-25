@@ -60,12 +60,14 @@ const BAR=[[6,360],[40,400],[100,425],[205,447],[320,432]],HEAD=[275,487],TAIL=[
 const card=document.getElementById('card'),cv=document.getElementById('cv'),X=cv.getContext('2d');
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,P=2;
 const qs=new URLSearchParams(location.search);
-let W,H,dpr,scene='sun',mode='live',loc=0,WX=null,t0=performance.now(),snowLvl=0,sleetLvl=0,TEMPF=null,ICE='auto'/*TREESNOW_V5*/,timelapse=qs.get('timelapse')==='1';
+let W,H,dpr,scene='sun',mode='live',loc=0,WX=null,t0=performance.now(),snowLvl=0,sleetLvl=0,TEMPF=null,ICE='auto'/*TREESNOW_V5*/,timelapse=qs.get('timelapse')==='1',SEED=qs.get('snow')?Math.min(1.4,Math.max(0,+qs.get('snow'))):.4;
 let parts=[],fx=[],runs=[],leaves=[],stars=[],carCells=[],flash=0,bolt=null,nextBolt=1500,clock=0;
-let simDate=parseDate(qs.get('date'))||new Date(),dateMode=qs.get('date')?'custom':'today';
+let simDate=parseDate(qs.get('date'))||nyDate(),dateMode=qs.get('date')?'custom':'today';
 const img=new Image();img.src=CAR;let dark=null,ready=false;
 const CW=128,CH=CW*IH/IW;let CX,CY;
 const S=v=>Math.round(v/P)*P, clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), sm=t=>t*t*(3-2*t);
+function nyKey(){try{return new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}catch(e){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')}}
+function nyDate(){return parseDate(nyKey())}
 function parseDate(s){if(!s)return null;const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(s);return m?new Date(+m[1],m[2]-1,+m[3],12):null}
 function hash(x,y){let h=(x*374761393+y*668265263)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967296}
 function vn(x,y){const xi=Math.floor(x),yi=Math.floor(y),fx=sm(x-xi),fy=sm(y-yi),a=hash(xi,yi),b=hash(xi+1,yi),c=hash(xi,yi+1),d=hash(xi+1,yi+1);return a+(b-a)*fx+(c-a)*fy+(a-b-c+d)*fx*fy}
@@ -182,7 +184,7 @@ function buildGround(){const wet=scene==='rain'||scene==='storm'||scene==='sleet
 function size(){dpr=Math.min(devicePixelRatio||1,3);const r=card.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);X.setTransform(dpr,0,0,dpr,0,0);
  CX=S(W-CW-14);CY=S(H-CH-20);
  GW=Math.round(CW*1.55/P);GH=Math.round(CH*.62/P);GOX=S(CX+CW*.5-GW*P/2-4);GOY=S(CY+CH*.80-GH*P/2);gc=cnv(GW,GH);gKey='';tKey='';
- if(!stars.length){const d=(qs.get('date')||new Date().toLocaleDateString('en-CA')).replace(/-/g,'');let a=(+d)|0;const rnd=()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};stars=Array.from({length:40},()=>({nx:rnd(),ny:rnd()*.7,p:rnd()*6.283}))}
+ if(!stars.length){const d=(qs.get('date')||nyKey()).replace(/-/g,'');let a=(+d)|0;const rnd=()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};stars=Array.from({length:40},()=>({nx:rnd(),ny:rnd()*.7,p:rnd()*6.283}))}
  carCells=[];for(const k of['roof','shield','hood','trunk']){const p=POLY[k].map(toC);const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]);
   for(let y=S(Math.min(...ys));y<Math.max(...ys);y+=P)for(let x=S(Math.min(...xs));x<Math.max(...xs);x+=P)if(inPoly(x+1,y+1,p)){
    const back=(x-CX)/CW;const r=vn(x/9,y/9)*.5+back*.32+hash(x,y)*.18+(k==='shield'?.12:0);
@@ -191,7 +193,7 @@ function size(){dpr=Math.min(devicePixelRatio||1,3);const r=card.getBoundingClie
 function mkDark(){const c=cnv(img.width,img.height),g=c.getContext('2d');g.drawImage(img,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(16,26,58,.30)';g.fillRect(0,0,c.width,c.height);dark=c}
 
 const cnt={drizzle:30,heavysnow:210,sleet:130,rain:110,storm:150,snow:80,hail:45,wind:14};
-let NIGHT_=false,NIGHT=false,tod='auto';function setScene(s){card.className='card '+s+(NIGHT?' n':'');if(s===scene&&(parts.length||!cnt[s])){if(NIGHT!==NIGHT_){NIGHT_=NIGHT;gKey='';tKey='';pudKey=''}return}NIGHT_=NIGHT;scene=s;card.className='card '+s+(NIGHT?' n':'');fx=[];runs=[];parts=[];leaves=[];snowLvl=(isSn()&&RM)?CAP():0;sleetLvl=(scene==='sleet'&&RM)?.42:0;gKey='';tKey='';for(let i=0;i<(cnt[s]||0);i++)parts.push(np(true))}
+let NIGHT_=false,NIGHT=false,tod='auto';function setScene(s){card.className='card '+s+(NIGHT?' n':'');if(s===scene&&(parts.length||!cnt[s])){if(NIGHT!==NIGHT_){NIGHT_=NIGHT;gKey='';tKey='';pudKey=''}return}NIGHT_=NIGHT;scene=s;card.className='card '+s+(NIGHT?' n':'');fx=[];runs=[];parts=[];leaves=[];snowLvl=isSn()?(RM?CAP():Math.min(SEED,1)*CAP()):0;sleetLvl=(scene==='sleet'&&RM)?.42:0;gKey='';tKey='';for(let i=0;i<(cnt[s]||0);i++)parts.push(np(true))}
 function np(any){const o={x:Math.random()*(W+60)-30,y:any?Math.random()*H:-8,ph:Math.random()*6};
  if(scene==='heavysnow'){o.v=1+Math.random()*1.1;o.s=Math.random()<.4?4:3}
  else if(scene==='sleet'){o.pel=Math.random()<.5;if(o.pel){o.v=6+Math.random()*2;o.vy=o.v;o.s=2;o.b=0}else{o.v=8+Math.random()*3;o.l=4+Math.random()*4}}
@@ -267,7 +269,7 @@ function buildGlass(){glassCells=[];for(const k of['shield','roof','sideF','side
 function cabState(){const T=window.TESLA_T||null;let inF=T?T.inside_temp_f:null,cl=T?!!T.climate_on:false,st=T?T.state:null;const ms=T?T.as_of_ms:null;let fresh=ms?Date.now()-ms<3*36e5:false;
  const qc=qs.get('cabin'),qk=qs.get('climate');if(qc!=null&&qc!==''&&!isNaN(+qc)){inF=+qc;fresh=true}if(qk!=null){cl=qk==='1'||qk==='on';fresh=true}
  if(CABSIM){fresh=true;if(CABSIM==='cold'){inF=30;cl=false;st='online'}else if(CABSIM==='warming'){inF=44;cl=true;st='online'}else if(CABSIM==='warm'){inF=62;cl=false;st='online'}else{inF=null;cl=false;st='asleep'}}
- if(inF!=null&&inF>=50)return'warm';if(cl)return'warming';if(!fresh||inF==null||st==='asleep'||st==='offline'||inF<=40)return'cold';return'warming'}
+ if(inF!=null&&inF>=50)return'warm';if(cl)return'warming';if(!fresh||inF==null||st==='asleep'||st==='offline'||inF<=40)return'cold';return'cold'}
 function frz(){return CABSIM?true:(TEMPF!=null&&TEMPF<=32)}
 function updCab(dt){const st=cabState();CABST=st;if(!meltInit){meltInit=true;meltK=st==='warm'?1:0}const tgt=st==='cold'?0:1;
  if(meltK<tgt)meltK=Math.min(1,meltK+dt/(RM?1:9000));else if(meltK>tgt)meltK=Math.max(0,meltK-dt/(RM?1:20000))}
@@ -310,7 +312,9 @@ function drawSanta(now){const SF=qs.get('santaf');let f;
  for(let i=0;i<3;i++){const bob=Math.round(Math.sin(now/170+i*1.1)*1.2)*P,x=x0+(52-i*15)*P,y=y0+bob,hw=i<2?4:5;spr(DEER,x,y,1);spr(LEGS[(fr+i)%3],x,y+8*P,1);
   X.fillStyle=SPAL.h;X.fillRect(S(x+(1-hw)*P),S(y+5*P),hw*P,P)}
  const sb=Math.round(Math.sin(now/200+3.3)*1.2)*P;spr(SLEIGH,x0,y0-2*P+sb,1)}
-function frame(now){const dt=Math.min(50,now-t0);t0=now;const f=dt/16.7;
+const ALBL={drizzle:'drizzle',heavysnow:'heavy snow',sleet:'sleet',sun:'clear',night:'clear',rain:'rain',snow:'snow',fog:'fog',storm:'thunderstorm',hail:'hail',wind:'windy'};let ariaL='';
+function updAria(){const fr=frz()&&cabState()!=='warm'&&(1-meltK)>.4,cs=cabState(),l='Weather scene: '+(ALBL[scene]||scene)+(NIGHT?' night':' day')+(cs==='warming'&&frz()?', car defrosting':fr?', car frosted':'')+(SNC()>.15?', snow on car':'');if(l!==ariaL){ariaL=l;cv.setAttribute('role','img');cv.setAttribute('aria-label',l)}}
+function frame(now){const dt=Math.min(50,now-t0);t0=now;updAria();const f=dt/16.7;
 
  if(scene==='sleet'){const nl=Math.min(.42,sleetLvl+dt*.42/(timelapse?10000:75000));if(Math.round(nl*60)!==Math.round(sleetLvl*60))tKey='';sleetLvl=nl}if(isSn()){const hv=scene==='heavysnow';snowLvl=Math.min(CAP(),snowLvl+dt*CAP()/(hv?(timelapse?8000:55000):(timelapse?10000:75000)))}
  X.clearRect(0,0,W,H);updCab(dt);
@@ -369,7 +373,7 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude=41.7473,41.3083&longitude
 document.querySelectorAll('.loc button').forEach(b=>b.onclick=()=>{loc=+b.dataset.loc;document.querySelectorAll('.loc button').forEach(x=>x.classList.toggle('on',x===b));render()});
 document.querySelectorAll('#tchips button[data-t]').forEach(b=>b.onclick=()=>{tod=b.dataset.t;setPlay(false);document.querySelectorAll('#tchips button[data-t]').forEach(x=>x.classList.toggle('on',x===b));render()});window.setTod=t=>{tod=t;render()};
 document.querySelectorAll('#wchips button').forEach(b=>b.onclick=()=>{mode=b.dataset.s;document.querySelectorAll('#wchips button').forEach(x=>x.classList.toggle('on',x===b));scene='';render()});
-document.querySelectorAll('#schips button').forEach(b=>b.onclick=()=>{const d=b.dataset.d;if(d==='today'){simDate=new Date();dateMode='today'}else{const y=new Date().getFullYear();simDate=new Date(y,+d.slice(0,2)-1,+d.slice(3),12);dateMode='custom'}
+document.querySelectorAll('#schips button').forEach(b=>b.onclick=()=>{const d=b.dataset.d;if(d==='today'){simDate=nyDate();dateMode='today'}else{const y=new Date().getFullYear();simDate=new Date(y,+d.slice(0,2)-1,+d.slice(3),12);dateMode='custom'}
  SEA=seasonOf(simDate);tKey='';gKey='';leaves=[];document.querySelectorAll('#schips button').forEach(x=>x.classList.toggle('on',x===b));render()});
 document.getElementById('tl').onclick=e=>{timelapse=!timelapse;e.currentTarget.classList.toggle('on',timelapse);const n=document.getElementById('note');n.textContent=n.textContent.replace(' · fast snow','').replace(/( · offline sample)?$/,m=>(timelapse?' · fast snow':'')+m)};document.getElementById('rs').onclick=()=>{snowLvl=0;tKey='';gKey=''};
 if(timelapse)document.getElementById('tl').classList.add('on');
@@ -388,7 +392,7 @@ const LL=[[41.7473,-73.1887],[41.3083,-72.9279]];
 function nyOff(d){try{const m=/GMT([+-]\d+)/.exec(d.toLocaleString('en-US',{timeZone:'America/New_York',timeZoneName:'shortOffset'}));if(m)return+m[1]}catch(e){}return d.getMonth()>2&&d.getMonth()<10?-4:-5}
 function nyNow(){try{const p=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'numeric',hourCycle:'h23'}).formatToParts(new Date()),g=t=>+p.find(x=>x.type===t).value;return g('hour')%24*60+g('minute')}catch(e){const n=new Date();return n.getHours()*60+n.getMinutes()}}
 let autoMin=nyNow();
-function calcSun(lat,lon,d){const r=Math.PI/180,N=Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(d.getFullYear(),0,0))/864e5),dec=23.44*Math.sin(2*Math.PI*(284+N)/365)*r,B=2*Math.PI*(N-81)/364,eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B),noon=720-4*lon-eot+nyOff(d)*60,ch=(Math.sin(-.833*r)-Math.sin(lat*r)*Math.sin(dec))/(Math.cos(lat*r)*Math.cos(dec)),Hd=Math.acos(clamp(ch,-1,1))/r;return{rise:noon-4*Hd,set:noon+4*Hd}}
+function calcSun(lat,lon,d){const r=Math.PI/180,j0=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5+2440587.5,sp=jd=>{const T=(jd-2451545)/36525,L0=((280.46646+T*(36000.76983+T*.0003032))%360+360)%360,M=357.52911+T*(35999.05029-.0001537*T),e=.016708634-T*(.000042037+1.267e-7*T),Mr=M*r,C=Math.sin(Mr)*(1.914602-T*(.004817+.000014*T))+Math.sin(2*Mr)*(.019993-.000101*T)+Math.sin(3*Mr)*.000289,om=(125.04-1934.136*T)*r,lam=(L0+C-.00569-.00478*Math.sin(om))*r,eps=(23+(26+(21.448-T*(46.815+T*(.00059-T*.001813)))/60)/60+.00256*Math.cos(om))*r,dec=Math.asin(Math.sin(eps)*Math.sin(lam)),y=Math.tan(eps/2)**2,L=L0*r,eq=4/r*(y*Math.sin(2*L)-2*e*Math.sin(Mr)+4*e*y*Math.sin(Mr)*Math.cos(2*L)-.5*y*y*Math.sin(4*L)-1.25*e*e*Math.sin(2*Mr));return{dec,eq}},ev=sg=>{let t=720-4*lon;for(let i=0;i<3;i++){const{dec,eq}=sp(j0+t/1440),H=Math.acos(clamp(Math.cos(90.833*r)/(Math.cos(lat*r)*Math.cos(dec))-Math.tan(lat*r)*Math.tan(dec),-1,1))/r;t=720-4*lon-eq+sg*4*H}return t+nyOff(d)*60};return{rise:ev(-1),set:ev(1)}}
 function hm(v){const m=/T(\d\d):(\d\d)/.exec(v||'');return m?+m[1]*60+ +m[2]:null}
 function sunTimes(){let r=null;if(WX&&dateMode==='today'){const dd=WX[loc].daily;if(dd&&dd.sunrise){const a=hm(dd.sunrise[0]),b=hm(dd.sunset[0]);if(a!=null&&b!=null&&b>a)r={rise:a,set:b}}}if(!r)r=calcSun(LL[loc][0],LL[loc][1],simDate);SUNT=r}
 function fmt(m){m=((Math.round(m)%1440)+1440)%1440;const h=Math.floor(m/60),mm=m%60;return(h%12||12)+':'+String(mm).padStart(2,'0')+(h<12?' AM':' PM')}
@@ -444,7 +448,7 @@ function tintScene(){const wf=wfac(),w=SKY.warm*(1-.55*wf),c=SKY.cool*(1-.3*wf);
 function setPlay(on){playing=on;const b=document.getElementById('play');b.classList.toggle('on',on);b.textContent=on?'❚❚ Pause':'▶ Play day';if(on){simMin=curMin();tod='custom';document.querySelectorAll('#tchips button[data-t]').forEach(x=>x.classList.remove('on'))}}
 document.getElementById('play').onclick=()=>setPlay(!playing);
 document.getElementById('tsl').oninput=e=>{setPlay(false);tod='custom';simMin=+e.target.value;document.querySelectorAll('#tchips button[data-t]').forEach(x=>x.classList.remove('on'));updTime();if(RM)frame(performance.now())};
-setInterval(()=>{autoMin=nyNow();if(tod==='auto'){updTime();if(RM)frame(performance.now())}},30000);
+setInterval(()=>{autoMin=nyNow();if(!qs.get('date')&&dateMode==='today'){const nk=nyKey(),ok=simDate.getFullYear()+'-'+String(simDate.getMonth()+1).padStart(2,'0')+'-'+String(simDate.getDate()).padStart(2,'0');if(nk!==ok){simDate=parseDate(nk);SEA=seasonOf(simDate);tKey='';gKey='';stars=[];size();render()}}if(tod==='auto'){updTime();if(RM)frame(performance.now())}},30000);
 window.setTime=m=>{setPlay(false);tod='custom';simMin=m;updTime();render()};
 img.onload=()=>{mkDark();size();syncSeasonChips(SEA.name);render();if(!RM)requestAnimationFrame(frame)};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)t0=performance.now()});
