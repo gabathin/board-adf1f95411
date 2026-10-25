@@ -154,6 +154,30 @@ body{padding:max(18px,calc(env(safe-area-inset-top) + 8px)) max(16px,calc(env(sa
 .tw{position:absolute;inset:0;isolation:isolate}#tw.tw{animation:none!important;opacity:1!important;background:#0a1020}.tw .sky{position:absolute;inset:0;background:linear-gradient(180deg,#2f78d0,#5aa0e6 58%,#a8d0f4)}
 .tw canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
 .hero .txt{left:18px!important;right:auto!important;top:16px!important;text-align:left!important;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+
+/* RESPB layout */
+body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.colA,.colB{min-width:0}.colB{container-type:inline-size}
+@container (max-width:519px){.row2{grid-template-columns:1fr}}
+@container (min-width:520px){.row2{grid-template-columns:1.2fr 1fr}}
+@media (min-width:600px) and (max-width:759px) and (orientation:portrait){.wrap{max-width:680px}.hero{height:290px!important}}
+@media (orientation:landscape) and (max-height:560px){
+ body{padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}
+ .wrap{max-width:1100px;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);grid-template-rows:auto 1fr;column-gap:14px;align-items:start}
+ .wrap>.head{grid-column:2;grid-row:1;margin-bottom:10px}.wrap>.colA{grid-column:1;grid-row:1/span 2;position:sticky;top:max(10px,env(safe-area-inset-top))}.wrap>.colB{grid-column:2;grid-row:2}
+ .colA .weather{margin-bottom:0}.hero{height:max(150px,min(250px,calc(100vh - 215px)))!important}
+ h1{font-size:25px}
+}
+@media (min-width:760px) and (min-height:561px){
+ .wrap{max-width:1120px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);column-gap:18px;align-items:start}
+ .wrap>.head{grid-column:1/-1}.wrap>.colA{grid-column:1;position:sticky;top:max(16px,env(safe-area-inset-top))}.wrap>.colB{grid-column:2}
+ .hero{height:clamp(260px,30vw,380px)!important}
+}
+@media (min-width:1200px) and (min-height:561px){
+ .wrap{max-width:1480px;grid-template-columns:minmax(0,1.35fr) minmax(0,2fr);column-gap:20px}
+ .colB{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr auto;column-gap:16px;align-items:start}
+ .colB>.row2{grid-column:1;grid-row:1/span 2;grid-template-columns:1fr}.colB>#focus{grid-column:2;grid-row:1}.colB>#items{grid-column:2;grid-row:2}.colB>.foot{grid-column:1/-1;grid-row:3}
+}
 </style><style>.sentry{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.sentry i{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.75);animation:sntp 2.4s ease-in-out infinite}@keyframes sntp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}@media (prefers-reduced-motion:reduce){.sentry i{animation:none}}</style>
 </head><body>
 <div class="aurora"><i></i><i></i><i></i></div><div class="grid-bg"></div>
@@ -211,6 +235,8 @@ body{padding:max(18px,calc(env(safe-area-inset-top) + 8px)) max(16px,calc(env(sa
 <section class="glass list rise" style="--d:4" id="items"></section>
 <div class="foot rise" style="--d:5"><span id="fl">&nbsp;</span><span id="fr">&nbsp;</span></div>
 </div>
+<script>/*RESPB wrap*/(()=>{const w=document.querySelector('.wrap');if(!w||w.querySelector('.colA'))return;const a=document.createElement('div'),b=document.createElement('div');a.className='colA';b.className='colB';
+ for(const n of [...w.children]){if(n.matches('.head,svg'))continue;(n.matches('.weather')?a:b).appendChild(n)}w.append(a,b)})();</script>
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-hidden="true"><div class="grab"></div><button class="sx" id="sx" aria-label="Close">×</button>
 <div class="sm" id="sfrom"></div><h3 id="ssub"></h3><div class="sm" id="sdate"></div><ul class="facts" id="sfacts"></ul>
@@ -568,7 +594,7 @@ function render(){if(!ready)return;{const w0=OV||CUR,qt=qs.get('temp');TEMPF=(qt
  if(WXO&&cnt.hasOwnProperty(WXO)||WXO==='sun'||WXO==='fog')s=WXO;if(s==='sun'&&NIGHT)s='night';if(s==='night'&&!NIGHT)s='sun';setScene(s);paintSky();if(RM)frame(performance.now())}
 window.TWX={set(d){CUR=d;loc=d.loc||0;const rs=d.recentSnow||0;SEED=clamp(.35+rs/6,.35,.95);if(qs.get('snow'))SEED=clamp(+qs.get('snow'),0,1.4);render()},
  preview(h){if(!h){OV=null;previewMin=null}else{OV=h;previewMin=h.min==null?null:h.min}render()}};
-let lastCW=card.getBoundingClientRect().width,rzT=0;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{const w=card.getBoundingClientRect().width;if(Math.abs(w-lastCW)<1)return;lastCW=w;size();if(RM)frame(performance.now())},150)});
+let lastCW=card.getBoundingClientRect().width/*RESP1*/,lastCH=card.getBoundingClientRect().height,lastDPR=devicePixelRatio||1,rzT=0;const onRz=()=>{clearTimeout(rzT);rzT=setTimeout(()=>{const r=card.getBoundingClientRect(),d=devicePixelRatio||1;if(Math.abs(r.width-lastCW)<1&&Math.abs(r.height-lastCH)<1&&d===lastDPR)return;lastCW=r.width;lastCH=r.height;lastDPR=d;if(!r.width||!r.height)return;size();tKey='';gKey='';if(RM)frame(performance.now())},120)};addEventListener('resize',onRz);addEventListener('orientationchange',onRz);if(window.visualViewport)visualViewport.addEventListener('resize',onRz);if(window.ResizeObserver)new ResizeObserver(onRz).observe(card);
 /* ---------- time of day: sun, moon, sky ---------- */
 let simMin=720,SUNT={rise:420,set:1080},PARTLY=false,playing=false,SKY={d:300,morn:false,sunF:.5,sunE:1,moonF:-1,warm:0,cool:0,starF:0,top:[40,80,140],mid:[60,100,160]},skyStr='';
 const LL=[[41.7473,-73.1887],[41.3083,-72.9279]];
