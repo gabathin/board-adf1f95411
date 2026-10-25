@@ -1,8 +1,9 @@
 {
  "dateLabel": "Sunday, Oct 25",
  "dayType": "Day off",
- "updatedLabel": "Oct 24, 10:33 PM ET",
+ "updatedLabel": "Oct 24, 10:41 PM ET",
  "status": "Day off",
+ "date": "2026-10-25",
  "items": [
   {
    "title": "Amazon · Gaming monitors (3 items)",
@@ -27,27 +28,30 @@
    "color": "cyan",
    "icon": "cal",
    "href": "https://www.google.com/calendar/event?eid=XzY4bzM0ZGhoNjBwMzBsMWc2MHEzMGNwazVrcTMwYzFsNjhxamlkOWQ2OG9qaWU5bDgwIDlncHRnOGoxZDNwZXVtNzZyOWFja21hMGpqMXFxaHFsQGk&ctz=America/New_York"
-  },
-  {
-   "title": "Bank of America card ···4883 shipped",
-   "sub": "Via USPS Oct 22 · allow 7–10 business days",
-   "tag": "MAIL",
-   "color": "cyan",
-   "icon": "card",
-   "href": "googlegmail:///cv=1a16493e1d64751f/accountId=olive1.work@gmail.com",
-   "fallback": "https://mail.google.com/mail/u/olive1.work@gmail.com/#all/1a16493e1d64751f"
   }
  ],
+ "focus": {
+  "date": "2026-10-25",
+  "items": [
+   {
+    "title": "NUR 315 starts Mon, so draft the Week 1 post before work Tue",
+    "detail": "Discussion post is due Wed; you work a day shift Tue, so Mon is the open day",
+    "when": "Mon",
+    "kind": "school",
+    "link": "https://ticktick.com/webapp/#p/6a39d360eb971c000000006f/tasks/6adb3f898f08408070b9444d"
+   }
+  ]
+ },
  "leave": {
   "note": "Next shift Tue Oct 27 · 6:45 AM, SICU"
  },
  "weather": {
-  "asOf": "10:33 PM ET Oct 24",
+  "asOf": "10:41 PM ET Oct 24",
   "raw": [
    {
     "latitude": 41.747112,
     "longitude": -73.18175,
-    "generationtime_ms": 127.08127498626709,
+    "generationtime_ms": 0.8138418197631836,
     "utc_offset_seconds": -14400,
     "timezone": "America/New_York",
     "timezone_abbreviation": "GMT-4",
@@ -355,7 +359,7 @@
    {
     "latitude": 41.305393,
     "longitude": -72.932014,
-    "generationtime_ms": 0.7236003875732422,
+    "generationtime_ms": 0.6582736968994141,
     "utc_offset_seconds": -14400,
     "timezone": "America/New_York",
     "timezone_abbreviation": "GMT-4",
