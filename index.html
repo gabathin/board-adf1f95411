@@ -178,7 +178,23 @@ body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env
  .colB{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr auto;column-gap:16px;align-items:start}
  .colB>.row2{grid-column:1;grid-row:1/span 2;grid-template-columns:1fr}.colB>#focus{grid-column:2;grid-row:1}.colB>#items{grid-column:2;grid-row:2}.colB>.foot{grid-column:1/-1;grid-row:3}
 }
-</style><style>.sentry{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.sentry i{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.75);animation:sntp 2.4s ease-in-out infinite}@keyframes sntp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}@media (prefers-reduced-motion:reduce){.sentry i{animation:none}}</style>
+</style><style>.sentry{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.sentry i{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.75);animation:sntp 2.4s ease-in-out infinite}@keyframes sntp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}@media (prefers-reduced-motion:reduce){.sentry i{animation:none}}
+/* RESPD Duo */
+@media (min-width:900px) and (max-width:1010px) and (min-height:561px) and (max-height:720px) and (orientation:landscape){
+ body{padding-top:max(10px,env(safe-area-inset-top))}
+ .wrap{max-width:none;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);grid-template-rows:auto 1fr;column-gap:14px}
+ .wrap>.head{grid-column:2;grid-row:1;margin-bottom:10px}
+ .wrap>.colA{grid-column:1;grid-row:1/span 2;top:max(10px,env(safe-area-inset-top))}.wrap>.colB{grid-column:2;grid-row:2}
+ .colA .weather{margin-bottom:0}.hero{height:max(225px,min(255px,calc(100vh - 400px)))!important}
+}
+@media (min-width:600px) and (max-width:759px) and (orientation:portrait) and (max-height:1010px){
+ .wrap{max-width:none}.hero{height:clamp(200px,33vw,240px)!important}
+ .colB{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:12px;align-items:start}
+ .colB>.row2,.colB>.foot{grid-column:1/-1}
+}
+@media (min-width:580px) and (max-width:759px) and (orientation:landscape) and (min-height:420px) and (max-height:560px){body{padding-right:max(48px,env(safe-area-inset-right))!important}.sheet{right:max(48px,env(safe-area-inset-right))!important}.loc{left:132px!important;right:auto!important}.loc{left:14px!important;top:12px!important}#wtxt,.hero .txt,.card .ov{top:52px!important}.hero{height:max(170px,min(210px,calc(100vh - 240px)))!important}.wrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media (min-width:400px) and (max-width:599px) and (orientation:portrait) and (min-height:600px) and (max-height:760px){body{padding-right:max(48px,env(safe-area-inset-right))!important}.sheet{right:max(48px,env(safe-area-inset-right))!important}.loc{left:132px!important;right:auto!important}.hero{height:195px!important}.wrap{max-width:none}}
+</style>
 </head><body>
 <div class="aurora"><i></i><i></i><i></i></div><div class="grid-bg"></div>
 <div class="wrap">

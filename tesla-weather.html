@@ -48,6 +48,12 @@ body{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env
  .card{max-width:none;height:clamp(260px,30vw,440px)}
  .cB .chips,.cB .trow{max-width:none;justify-content:flex-start}.cB .lbl{text-align:left;max-width:none}
 }
+
+/* RESPD Duo */
+@media (min-width:900px) and (max-width:1010px) and (min-height:561px) and (max-height:720px) and (orientation:landscape){body{padding-top:max(10px,env(safe-area-inset-top))}.cwrap{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);max-width:none}.card{height:max(240px,min(300px,calc(100vh - 220px)))!important}}
+@media (min-width:600px) and (max-width:759px) and (orientation:portrait) and (max-height:1010px){.card{max-width:none;height:clamp(220px,38vw,260px)!important}}
+@media (min-width:580px) and (max-width:759px) and (orientation:landscape) and (min-height:420px) and (max-height:560px){body{padding-right:max(48px,env(safe-area-inset-right))!important}.sheet{right:max(48px,env(safe-area-inset-right))!important}.loc{left:132px!important;right:auto!important}.loc{left:14px!important;top:12px!important}#wtxt,.hero .txt,.card .ov{top:52px!important}.card{height:max(200px,min(250px,calc(100vh - 120px)))!important}}
+@media (min-width:400px) and (max-width:599px) and (orientation:portrait) and (min-height:600px) and (max-height:760px){body{padding-right:max(48px,env(safe-area-inset-right))!important}.sheet{right:max(48px,env(safe-area-inset-right))!important}.loc{left:132px!important;right:auto!important}.card{max-width:none;height:200px!important}}
 </style></head><body>
 <h1>Weather · concept v3</h1>
 <div class="card sun" id="card"><div class="sky"></div><canvas id="cv"></canvas>
