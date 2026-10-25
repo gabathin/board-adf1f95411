@@ -174,8 +174,8 @@ body{padding:max(18px,calc(env(safe-area-inset-top) + 8px)) max(16px,calc(env(sa
   <div class="ring"><svg viewBox="0 0 110 110" width="104" height="104">
    <circle cx="55" cy="55" r="46" stroke="rgba(255,255,255,.08)" stroke-width="9" fill="none"/>
    <circle class="arc" id="arc" cx="55" cy="55" r="46" stroke="url(#rg)" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289" transform="rotate(-90 55 55)" style="filter:drop-shadow(0 0 6px rgba(34,211,238,.7))"/></svg>
-   <div class="c"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#e0f2fe" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9c5-3 11-3 16 0"/><path d="M12 7v13"/><path d="M8.5 8.2 12 11l3.5-2.8"/></svg></div></div>
-  <div style="flex:1;min-width:0"><div class="k">Tesla</div><div class="it" style="margin-top:6px">Open app</div><div class="m" id="tm">Battery and climate live in the Tesla app</div></div>
+   <div class="c" id="tc"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#e0f2fe" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9c5-3 11-3 16 0"/><path d="M12 7v13"/><path d="M8.5 8.2 12 11l3.5-2.8"/></svg></div></div>
+  <div style="flex:1;min-width:0"><div class="k">Tesla</div><div class="it" id="tt" style="margin-top:6px">Open app</div><div class="m" id="tm">Battery and climate live in the Tesla app</div><div id="tbar"></div><div class="m" id="tas" style="font-size:11px;opacity:.7"></div></div>
  </a>
 </div>
 
@@ -303,7 +303,19 @@ const IC={box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'};
 function mapsLinks(a,d){a.href='comgooglemaps://?daddr='+encodeURIComponent(d).replace(/%20/g,'+')+'&directionsmode=driving';
  a.dataset.fallback='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(d)+'&travelmode=driving'}
-function renderData(J){
+let TARC=0;
+function renderTesla(T){if(!T||T.battery_level==null)return;const b=+T.battery_level;TARC=289*(1-b/100);
+ $('tc').innerHTML='<b><span class="cnt" data-to="'+b+'">0</span>%</b><span>'+(+T.battery_range)+' mi</span>';
+ const cs=T.charging_state;let t;
+ if(T.warm_at)t='Warming at '+T.warm_at+(T.warm_days==='weekdays'?' · weekdays':'');
+ else if(cs==='Charging')t='Charging · to '+T.charge_limit+'%';
+ else if(T.climate_on)t='Climate on';
+ else t='Parked · '+(T.state==='asleep'?'asleep':(T.state||'idle'));
+ $('tt').textContent=t;
+ $('tm').innerHTML=(T.inside_temp_f!=null?'Cabin <span class="cnt" data-to="'+(+T.inside_temp_f)+'">0</span>° · ':'')+(T.locked?'locked':'unlocked')+' · '+(T.tires_ok?'Tires OK':'Tires check');
+ if(T.charge_limit)$('tbar').innerHTML='<div class="bar" style="position:relative"><i data-w="'+b+'%"></i><span style="position:absolute;top:-2px;bottom:-2px;left:'+(+T.charge_limit)+'%;width:2px;background:#e0f2fe;opacity:.7"></span></div>';
+ $('tas').textContent='as of '+(T.asOf||'')+(T.state==='asleep'?' · asleep':'');}
+function renderData(J){renderTesla(J.tesla);
  $('kicker').textContent='Morning Board · '+(J.dayType||'Today');$('when').textContent=J.dateLabel||'';
  $('stxt').textContent=J.status||'Up to date';
  const L=J.leave||{},a=$('leave');
@@ -327,7 +339,7 @@ function routeAnim(){const p=$('rpath'),d=$('rdot');if($('lroute').hidden)return
   else{p.style.strokeDashoffset=0;if(!RM){const u=((t-1.4)%2.8)/2.8;const pt=p.getPointAtLength(u*L);d.setAttribute('cx',pt.x);d.setAttribute('cy',pt.y);d.setAttribute('opacity',Math.sin(u*Math.PI).toFixed(2));}}
   requestAnimationFrame(f)})(performance.now());}
 function animateIn(){document.querySelectorAll('.cnt').forEach(e=>count(e,+e.dataset.to,1500,300));count(ht,+ht.dataset.to,1500,200);
- setTimeout(()=>{$('arc').style.strokeDashoffset=0},450);routeAnim();
+ setTimeout(()=>{$('arc').style.strokeDashoffset=TARC;document.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w)},450);routeAnim();
  setTimeout(()=>document.querySelectorAll('.cnt,#htemp').forEach(e=>{if(e.textContent!==String(e.dataset.to))e.textContent=e.dataset.to}),4000)}
 const tmo=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))]);
 const dataP=tmo(fetch('data.json?t='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json()}),6000).catch(()=>null);
