@@ -681,6 +681,7 @@
   "charge_limit": 80,
   "inside_temp_f": 48,
   "locked": true,
+  "sentry_mode": false,
   "tires_ok": true,
   "climate_on": false,
   "warm_at": "5:20 AM",
