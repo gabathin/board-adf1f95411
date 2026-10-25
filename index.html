@@ -35,7 +35,10 @@ a{color:inherit;text-decoration:none}
 .tap{cursor:pointer;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s}
 .tap:active,.tap.pressed{transform:scale(.975);border-color:rgba(165,243,252,.45);box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 1px rgba(103,232,249,.25),0 0 28px rgba(103,232,249,.35),inset 0 1px 0 rgba(255,255,255,.18)}
 @media (hover:hover){.tap:hover{border-color:rgba(165,180,252,.35)}}
-.k{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#93a4c8;font-weight:700}
+.k{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a9b8d8;font-weight:700;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.head h1{white-space:nowrap;font-size:clamp(22px,6.5vw,29px)}
+.head.rise{transform:none;animation-name:fadein}@keyframes fadein{to{opacity:1}}
+.head.rise.done{animation:none;opacity:1;transform:none;will-change:auto}
 .rise{opacity:0;transform:translateY(22px);animation:rise .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--d,0)*120ms + 100ms)}
 @keyframes rise{to{opacity:1;transform:none}}
 .head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
@@ -207,7 +210,7 @@ body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env
 </defs></svg>
 
 
-<header class="head rise" style="--d:0"><div><div class="k" id="kicker">Morning Board</div><h1>Good morning, sir.</h1><div class="time" id="when">&nbsp;</div></div>
+<header class="head rise" style="--d:0"><div><div class="k" id="kicker">Morning Board</div><h1 id="greet">Good morning, Gabe.</h1><div class="time" id="when">&nbsp;</div></div>
 <div class="status" id="status"><span class="pulse"></span><span id="stxt">Loading</span></div></header>
 
 <section class="glass weather rise" style="--d:1">
@@ -812,4 +815,10 @@ Promise.all([dataP,wxP]).then(([J,live])=>{
  bindFallbacks();requestAnimationFrame(()=>setTimeout(animateIn,150));
 });
 })();
-</script></body></html>
+</script><script>/*GREET*/(function(){const q=new URLSearchParams(location.search),m=/^(\d\d?):(\d\d)$/.exec(q.get('time')||'');
+function mins(){if(m)return(+m[1]*60+ +m[2])%1440;const d=new Date();return d.getHours()*60+d.getMinutes()}
+function word(t){return t>=300&&t<720?'morning':t>=720&&t<1020?'afternoon':t>=1020&&t<1320?'evening':'night'}
+function set(){const e=document.getElementById('greet');if(!e)return;const w=word(mins()),g=w==='night'?'Hello, Gabe.':'Good '+w+', Gabe.';if(e.textContent!==g)e.textContent=g}
+set();setInterval(set,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)set()});
+const h=document.querySelector('.head.rise');if(h)h.addEventListener('animationend',e=>{if(e.target===h)h.classList.add('done')});})();</script>
+</body></html>
