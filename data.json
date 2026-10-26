@@ -694,22 +694,22 @@
   ]
  },
  "tesla": {
-  "battery_level": 75,
-  "battery_range": 244,
+  "battery_level": 74,
+  "battery_range": 243,
   "charging_state": "Disconnected",
   "charge_limit": 80,
-  "inside_temp_f": 43,
+  "inside_temp_f": 40,
   "locked": true,
   "sentry_mode": false,
   "tires_ok": true,
   "climate_on": false,
   "warm_at": "5:20 AM",
   "warm_days": "weekdays",
-  "warm_at_iso": "2026-10-26T05:20:00-04:00",
+  "warm_at_iso": null,
   "odometer": 1182,
   "state": "asleep",
-  "outside_temp_f": 58,
-  "as_of_ms": 1792965429991,
-  "asOf": "5:57 PM ET Oct 25"
+  "outside_temp_f": 37,
+  "as_of_ms": 1793006941343,
+  "asOf": "5:29 AM ET Oct 26"
  }
 }
